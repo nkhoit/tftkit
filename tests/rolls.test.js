@@ -86,6 +86,31 @@ test('expected copies scales linearly with rolls', () => {
   assert.ok(Math.abs(odds.expectedCopies(4, 8, 10) - one * 10) < 1e-12);
 });
 
+test('expected copies never exceeds the copies that exist', () => {
+  // A five-cost has nine copies in the whole lobby; no amount of rolling
+  // conjures a tenth.
+  for (const [cost, level, rolls] of [[5, 11, 200], [4, 9, 100], [1, 3, 500]]) {
+    const seen = odds.expectedCopies(cost, level, rolls);
+    assert.ok(seen <= odds.POOL_COPIES[cost] + 1e-9,
+      `expected ${seen} copies of a ${cost}-cost, pool holds ${odds.POOL_COPIES[cost]}`);
+  }
+});
+
+test('expected copies respects copies already taken', () => {
+  // Seven of nine gone means at most two left to find, however long you roll.
+  const seen = odds.expectedCopies(5, 11, 200, { taken: 7 });
+  assert.ok(seen <= 2 + 1e-9, `expected ${seen} copies with only 2 remaining`);
+  assert.strictEqual(odds.expectedCopies(5, 11, 500, { taken: 9 }), 0);
+});
+
+test('negative taken or contested cannot inflate the odds', () => {
+  // A negative count would run the arithmetic backwards and invent copies.
+  const base = odds.slotChance(4, 9);
+  assert.strictEqual(odds.slotChance(4, 9, { taken: -3 }), base);
+  assert.strictEqual(odds.slotChance(4, 9, { taken: -100 }), base);
+  assert.strictEqual(odds.slotChance(4, 9, { contested: -50 }), base);
+});
+
 test('curve is monotonic and ends at the cumulative chance', () => {
   const c = odds.curve(4, 8, 20);
   assert.strictEqual(c.length, 20);

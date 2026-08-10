@@ -61,10 +61,16 @@ function slotChance(cost, level, { taken = 0, contested = 0 } = {}) {
   const tierPct = levelOdds(level)[cost - 1] / 100;
   if (tierPct === 0) return 0;
 
+  // Negative inputs would run the arithmetic backwards: a negative `taken`
+  // inflates the numerator (more copies than exist), a negative `contested`
+  // shrinks the denominator. Both silently overstate the odds, so floor them.
+  const held = Math.max(0, taken);
+  const removed = Math.max(0, contested);
+
   const copies = POOL_COPIES[cost];
   const types = POOL_TYPES[cost];
-  const remainingTarget = Math.max(0, copies - taken);
-  const remainingTier = Math.max(0, copies * types - taken - contested);
+  const remainingTarget = Math.max(0, copies - held);
+  const remainingTier = Math.max(0, copies * types - held - removed);
   if (remainingTier === 0 || remainingTarget === 0) return 0;
 
   return tierPct * (remainingTarget / remainingTier);
@@ -118,8 +124,17 @@ function rollChance(cost, level, rolls, opts) {
 }
 
 // Expected number of copies seen over `rolls` shops.
+//
+// The linear form p * SLOTS * rolls is an expectation over independent draws,
+// which is fine while the pool is deep but has no idea the pool is finite: it
+// happily promises 35 copies of a five-cost when only nine exist in the lobby.
+// Cap it at the copies that are actually still out there -- `taken` has already
+// removed some, so the ceiling is what remains, not the full pool.
 function expectedCopies(cost, level, rolls, opts) {
-  return slotChance(cost, level, opts) * SLOTS * Math.max(0, rolls);
+  const { taken = 0 } = opts || {};
+  const available = Math.max(0, POOL_COPIES[cost] - Math.max(0, taken));
+  const linear = slotChance(cost, level, opts) * SLOTS * Math.max(0, rolls);
+  return Math.min(linear, available);
 }
 
 // Gold needed for a given confidence of hitting at least one copy.
