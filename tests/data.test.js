@@ -498,7 +498,8 @@ test('touch devices can preview a unit without applying a filter', () => {
 test('the generated data and checked-in roster are internally consistent', () => {
   const data = JSON.parse(read('web/traits/data.json'));
   const roster = JSON.parse(read('set18-roster.json'));
-  const builder = read('build_set18.py');
+  const builder = read('build_set.py');
+  const setConfig = read('sets/set18.py');
   const champions = new Map(data.champions.map(champion => [champion.key, champion]));
 
   assert.equal(roster.length, data.champions.length);
@@ -530,8 +531,8 @@ test('the generated data and checked-in roster are internally consistent', () =>
   assert.equal(Object.values(data.traits).filter(trait => trait.category === 'class').length, 12);
   assert.equal(data.traits.Blackthorn.category, 'origin');
   assert.equal(data.traits.Ravager.category, 'class');
-  assert.match(builder, /TRAIT_CATEGORIES = \{/);
-  assert.match(builder, /"Blackthorn": "origin"/);
+  assert.match(setConfig, /TRAIT_CATEGORIES = \{/);
+  assert.match(setConfig, /"Blackthorn": "origin"/);
   assert.match(builder, /OUT = os\.path\.join\(HERE, "web", "traits", "data\.json"\)/);
   assert.doesNotMatch(builder, /OUT = os\.path\.join\(HERE, "web", "data\.json"\)/);
   const duplicatePlannerCodes = [...Map.groupBy(data.champions, champion => champion.teamPlannerCode)]
@@ -553,8 +554,8 @@ test('the generated data and checked-in roster are internally consistent', () =>
     assert.equal(lux.ability.name, 'Final Spark');
   }
   assert.equal(champions.get('Raptor').ability.name, 'Flock Family');
-  assert.match(builder, /ABILITY_NAME_OVERRIDES = \{/);
-  assert.match(builder, /"Raptor": "Flock Family"/);
+  assert.match(setConfig, /ABILITY_NAME_OVERRIDES = \{/);
+  assert.match(setConfig, /"Raptor": "Flock Family"/);
   assert.deepEqual(data.traits.Riftbeast.teamSize, [{ min: 10, slots: 2 }]);
   assert.deepEqual(data.traits.Riftbeast.teamSize, [{ min: 10, slots: 2 }]);
   assert.ok(data.traits.Adaptor.tiers.every(tier =>

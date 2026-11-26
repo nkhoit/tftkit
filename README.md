@@ -136,16 +136,21 @@ The local-search benchmark compares three seeded size-10 cases against one
 
 ## Data
 
-`web/traits/data.json` is generated from the checked-in `set18-roster.json`,
+`web/traits/data.json` is generated from a set-specific roster and config, plus
 [CommunityDragon](https://communitydragon.org), Riot's team-planner data,
-[LoLChess](https://lolchess.gg), and a checked-in origin/class taxonomy sourced
-from [Blitz](https://utils.iesdev.com/static/json/tftTest/set18/en_us/traits).
-Placeholder PBE ability names are corrected from [MetaTFT](https://www.metatft.com/new-set#Units).
+[LoLChess](https://lolchess.gg), and set-specific trait metadata. Placeholder PBE
+ability names may be corrected by the set config.
 
 ```bash
-python3 -m pip install -r requirements.txt
-python3 build_set18.py
+python3 -m venv venv
+. venv/bin/activate
+python -m pip install -r requirements.txt
+python build_set.py --set 18
 ```
+
+Set data and parsing hooks live under `sets/` (for example `sets/set18.py`);
+the set number selects the CDragon data, planner data, asset patterns, and
+LoLChess cache. `build_set18.py` remains as a compatibility wrapper.
 
 The builder caches large downloads under the operating system's temporary directory.
 It validates roster joins, trait breakpoints, icons, champion stats, and abilities before
@@ -162,7 +167,7 @@ The checker exits nonzero when values drift or referenced champions/traits are a
 
 ### Data Caveats
 
-The reveal roster differs from PBE internals in a few places handled by the builder:
+The reveal roster differs from PBE internals in a few places handled by the Set 18 config:
 
 - `Eldritch` was renamed `Blackthorn`.
 - Solar and Lunar Lux use `sunbeam` and `moonbeam` asset suffixes.
