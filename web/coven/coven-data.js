@@ -4,7 +4,7 @@
 //
 // Sourced from the 8/5 PBE patch notes (@TheTruexy). CDragon and MetaTFT both
 // still reported the previous 7-Coven rates when this was written, so the
-// patch notes win -- see PATCH_TRAIT_TIERS in build_set18.py for the same
+// patch notes win -- see PATCH_TRAIT_TIERS in sets/set18.py for the same
 // conflict on the trait tooltip.
 (function (root, factory) {
   if (typeof module === "object" && module.exports) module.exports = factory();

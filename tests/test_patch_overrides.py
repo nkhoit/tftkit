@@ -27,10 +27,10 @@ class TestCovenRates(unittest.TestCase):
         self.assertIn("80 per loss", tiers[3],
                       "7-Coven is 80 essence per loss this patch")
 
-    def test_build_script_declares_the_override(self):
-        src = (ROOT / "build_set18.py").read_text()
+    def test_set_config_declares_the_override(self):
+        src = (ROOT / "sets" / "set18.py").read_text()
         self.assertIn("PATCH_TRAIT_TIERS", src,
-                      "the build script must own the override, not a hand edit")
+                      "the Set 18 config must own the override, not a hand edit")
 
 
 if __name__ == "__main__":
